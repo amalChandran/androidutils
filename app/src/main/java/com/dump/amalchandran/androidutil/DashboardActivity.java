@@ -1,18 +1,29 @@
 package com.dump.amalchandran.androidutil;
 
+import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.List;
+import java.util.logging.Logger;
+
+import datausage.AppNetUsage;
+import datausage.ApplicationItem;
+import datausage.SubscribeForNetworkStats;
+
 public class DashboardActivity extends AppCompatActivity {
 
+    AppNetUsage appNetUsage;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState)  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dashboard);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -26,6 +37,29 @@ public class DashboardActivity extends AppCompatActivity {
                         .setAction("Action", null).show();
             }
         });
+
+        appNetUsage = new AppNetUsage(getApplicationContext(), new SubscribeForNetworkStats() {
+            @Override
+            public void networkUpdates(List<ApplicationItem> mApplicationItemList) {
+                Log.i("Network " , "=====================================================================================");
+                Log.i("Network " , "====================================================================================="+mApplicationItemList.size());
+                for (ApplicationItem item : mApplicationItemList) {
+                    Log.i("Network ", "" + item.getApplicationLabel(getPackageManager()) + " : " + item.getTotalUsageKb());
+                }
+            }
+        }) ;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        appNetUsage.start();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        appNetUsage.stop();
     }
 
     @Override
@@ -49,4 +83,5 @@ public class DashboardActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }
