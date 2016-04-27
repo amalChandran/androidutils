@@ -1,9 +1,10 @@
-package datausage.util;
+package datausage;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 
 /**
  * Created by amalchandran on date 29/05/15
@@ -13,12 +14,16 @@ public class NetworkUtil {
     public static String getNetworkType(Context context){
         String networkType = "";
 
-        if (NetworkUtil.isConnectedWifi(context)) {
-            networkType = "wifi";
-        } else if (NetworkUtil.isConnectedFast(context)) {
-            networkType = "3g";
+        if(isConnected(context)) {
+            if (NetworkUtil.isConnectedWifi(context)) {
+                networkType = "wifi";
+            } else if (NetworkUtil.isConnectedFast(context)) {
+                networkType = "3g";
+            } else {
+                networkType = "2g";
+            }
         } else {
-            networkType = "2g";
+            networkType = "disconnected";
         }
         return networkType;
     }
@@ -96,6 +101,7 @@ public class NetworkUtil {
         if(type== ConnectivityManager.TYPE_WIFI){
             return true;
         }else if(type== ConnectivityManager.TYPE_MOBILE){
+            Log.i("Net type : ", "net type : sub typo : "+subType);
             switch(subType){
                 case TelephonyManager.NETWORK_TYPE_1xRTT:
                     return false; // ~ 50-100 kbps

@@ -1,14 +1,12 @@
 package datausage.rest;
 
-import com.activeandroid.annotation.Column;
-
 /**
  * Created by amal.chandran on 26/04/16.
  */
-public class AppUsage {
+public class AppNetworkUsage {
     private String appPackageName;
     private String appName;
-    private long appDateUseToday;
+    private long dataConsumed;
 
     public String getAppPackageName() {
         return appPackageName;
@@ -26,11 +24,11 @@ public class AppUsage {
         this.appName = appName;
     }
 
-    public long getAppDateUseToday() {
-        return appDateUseToday;
+    public long getDataConsumed() {
+        return dataConsumed;
     }
 
-    public void setAppDateUseToday(long appDateUseToday) {
-        this.appDateUseToday = appDateUseToday;
+    public void setDataConsumed(long dataConsumed) {
+        this.dataConsumed = dataConsumed;
     }
 }

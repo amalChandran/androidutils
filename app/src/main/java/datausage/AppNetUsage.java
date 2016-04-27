@@ -5,12 +5,19 @@ import android.content.pm.ApplicationInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 
+import com.activeandroid.query.Select;
+
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Timer;
 import java.util.TimerTask;
+
+import datausage.db.NetworkDbUtils;
+import datausage.db.Harvest;
 
 public class AppNetUsage {
 
@@ -90,11 +97,42 @@ public class AppNetUsage {
             }
         });
 
-        //TODO: Push the data to subscribers.
 
+        //Update the Datausage DB
+        ArrayList<ApplicationItem> applicationItems = new ArrayList<ApplicationItem>(mApplicationItemList);
+        NetworkDbUtils.getInstance(mContext).saveValuesToDB(applicationItems);
+        //Update the Harvest DB.
+        recordNetworkTime();
+
+        //TODO: Push the data to subscribers.
         subscribeForNetworkStats.networkUpdates(mApplicationItemList);
 
     }
+
+    /**  Duration of network types used. **/
+    private void recordNetworkTime(){
+        Harvest harvest = new Select().from(Harvest.class).where(Harvest.KEY_DATE + " = ?", getDateFromMillis(System.currentTimeMillis())).executeSingle();
+        if (harvest == null) {
+            harvest = new Harvest();
+            harvest.syncStatus = Harvest.SYNC.NOT_READY_FOR_SYNCED;
+            harvest.date = getDateFromMillis(System.currentTimeMillis());
+        }
+
+        String networkType = NetworkUtil.getNetworkType(mContext);
+        if(networkType.equalsIgnoreCase("3g")){
+            harvest.timeOn3G = harvest.timeOn3G + (TIME_APPLICATION_UPDATE/1000);
+        } else if (networkType.equalsIgnoreCase("2g")){
+            harvest.timeOn2G = harvest.timeOn2G + (TIME_APPLICATION_UPDATE/1000);
+        } else {
+            //Disconnected
+            harvest.timeDisconnected = harvest.timeDisconnected + (TIME_APPLICATION_UPDATE/1000);
+
+        }
+
+        harvest.save();
+    }
+
+
 
     private void updateNetworkState() {
         isWifiEnabled = isConnectedWifi();
@@ -115,6 +153,14 @@ public class AppNetUsage {
         ConnectivityManager cm = (ConnectivityManager) mContext.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo info = cm.getActiveNetworkInfo();
         return (info != null && info.isConnected() && info.getType() == ConnectivityManager.TYPE_MOBILE);
+    }
+
+    private String getDateFromMillis(long millis) {
+        final Calendar cal = Calendar.getInstance();
+        cal.setTimeInMillis(millis);
+        SimpleDateFormat format1 = new SimpleDateFormat("dd-MM-yyyy");
+
+        return format1.format(cal.getTime());
     }
 
 }
