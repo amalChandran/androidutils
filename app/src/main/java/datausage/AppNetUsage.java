@@ -76,7 +76,7 @@ public class AppNetUsage {
             }
         } else {
             for (ApplicationInfo app : mContext.getPackageManager().getInstalledApplications(0)) {
-                ApplicationItem item = new ApplicationItem(app);
+                ApplicationItem item = new ApplicationItem(app, mContext);
                 item.setMobilTraffic(isMobilEnabled);
 
                 mApplicationItemList.add(item);

@@ -1,5 +1,6 @@
 package datausage;
 
+import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
@@ -7,7 +8,7 @@ import android.net.TrafficStats;
 
 public class ApplicationItem {
 
-//    Rx stand for received (download) and Tx for tranferred (upload)
+//    Rx stand for received (download) and Tx for transferred (upload)
 
     private long tx = 0;
     private long rx = 0;
@@ -22,11 +23,13 @@ public class ApplicationItem {
     private long current_rx = 0;
 
     private ApplicationInfo app;
+    private Context context;
 
     private boolean isMobil = false;
 
-    public ApplicationItem(ApplicationInfo _app) {
+    public ApplicationItem(ApplicationInfo _app, Context context) {
         app = _app;
+        this.context = context;
         update();
     }
 
@@ -49,25 +52,28 @@ public class ApplicationItem {
         }
     }
 
-    public static ApplicationItem create(ApplicationInfo _app){
-        long _tx = TrafficStats.getUidTxBytes(_app.uid);
-        long _rx = TrafficStats.getUidRxBytes(_app.uid);
-
-        if((_tx + _rx) > 0) return new ApplicationItem(_app);
-        return null;
-    }
+//    public static ApplicationItem create(ApplicationInfo _app){
+//        long _tx = TrafficStats.getUidTxBytes(_app.uid);
+//        long _rx = TrafficStats.getUidRxBytes(_app.uid);
+//
+//        if((_tx + _rx) > 0) return new ApplicationItem(_app);
+//        return null;
+//    }
 
     public int getTotalUsageKb() {
         return Math.round((tx + rx) / 1024);
     }
 
-    public String getApplicationLabel(PackageManager _packageManager) {
-        return _packageManager.getApplicationLabel(app).toString();
+    public String getApplicationLabel() {
+        return context.getPackageManager().getApplicationLabel(app).toString();
+    }
+    public String getApplicationPackage() {
+        return app.packageName;
     }
 
-    public Drawable getIcon(PackageManager _packageManager) {
-        return _packageManager.getApplicationIcon(app);
-    }
+//    public Drawable getIcon(PackageManager _packageManager) {
+//        return _packageManager.getApplicationIcon(app);
+//    }
 
     public void setMobilTraffic(boolean _isMobil) {
         isMobil = _isMobil;

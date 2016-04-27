@@ -11,12 +11,14 @@ import android.view.View;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
 
 import datausage.AppNetUsage;
 import datausage.ApplicationItem;
 import datausage.SubscribeForNetworkStats;
+import datausage.db.DbUtils;
 
 public class DashboardActivity extends AppCompatActivity {
 
@@ -44,8 +46,11 @@ public class DashboardActivity extends AppCompatActivity {
                 Log.i("Network " , "=====================================================================================");
                 Log.i("Network " , "====================================================================================="+mApplicationItemList.size());
                 for (ApplicationItem item : mApplicationItemList) {
-                    Log.i("Network ", "" + item.getApplicationLabel(getPackageManager()) + " : " + item.getTotalUsageKb());
+                    Log.i("Network ", "" + item.getApplicationPackage() + " : " + item.getTotalUsageKb());
                 }
+
+                ArrayList<ApplicationItem> applicationItems = new ArrayList<ApplicationItem>(mApplicationItemList);
+                DbUtils.getInstance().saveValuesToDB(applicationItems);
             }
         }) ;
     }
